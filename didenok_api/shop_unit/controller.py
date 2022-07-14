@@ -1,12 +1,33 @@
 import json
 
+from shop_unit.models import ShopUnit
+
+
 class ShopUnitController:
     @staticmethod
     def on_import(payload):
-        return {"code": 200, "message": "Success import"}
-        # data = json.loads(payload)
-        # if not data["items"] or len(data["items"]) == 0:
-        #     return {"code": 400, "message": "Validation Failed"}
+        data = None
+        if type(payload) == bytes:
+            data = json.loads(payload)
+            data = json.loads(data)
+
+        if not data["items"] or len(data["items"]) == 0:
+            return {"code": 400, "message": "Validation Failed"}
+
+        try:
+            for item in data["items"]:
+                try:
+                    new_item = ShopUnit()
+                    new_item.__dict__.update(item)
+                    new_item.save()
+                except Exception as e:
+                    return {"code": 400, "message": "Validation Failed"}
+
+
+            return {"code": 200, "message": "Success Import"}
+        except Exception as e:
+            return {"code": 400, "message": "Validation Failed"}
+
 
     @staticmethod
     def on_delete(id):
