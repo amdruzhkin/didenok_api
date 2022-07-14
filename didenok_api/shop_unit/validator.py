@@ -9,13 +9,13 @@ class Validator:
     def check_uuid(uuid):
         uuid_mask = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$"
         if type(uuid) != str:
-            raise ValidationError
+            raise ValidationError("")
 
         if len(uuid) == 0:
-            raise ValidationError
+            raise ValidationError("")
 
         if not re.match(uuid_mask, uuid):
-            raise ValidationError
+            raise ValidationError("")
 
     @staticmethod
     def check_date(date):
@@ -23,5 +23,5 @@ class Validator:
         try:
             datetime.strptime(date, mask)
         except BaseException:
-            raise ValidationError
+            raise ValidationError("")
 

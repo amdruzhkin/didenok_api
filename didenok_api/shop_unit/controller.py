@@ -1,6 +1,8 @@
 import json
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from shop_unit.models import ShopUnit
+from shop_unit.validator import Validator
 
 
 class ShopUnitController:
@@ -23,7 +25,6 @@ class ShopUnitController:
                 except Exception as e:
                     return {"code": 400, "message": "Validation Failed"}
 
-
             return {"code": 200, "message": "Success Import"}
         except Exception as e:
             return {"code": 400, "message": "Validation Failed"}
@@ -31,7 +32,16 @@ class ShopUnitController:
 
     @staticmethod
     def on_delete(id):
-        return {"code": 200, "message": id}
+        try:
+            Validator.check_uuid(id)
+            ShopUnit.objects.get(pk=id).delete()
+            return {"code": 200, "message": id}
+        except ObjectDoesNotExist as e:
+            return {"code": 404, "message": "Item not found"}
+        except ValidationError as e:
+            return {"code": 400, "message": "Validation Failed"}
+
+
 
     @staticmethod
     def on_nodes(id):
