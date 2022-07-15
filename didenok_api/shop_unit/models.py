@@ -21,11 +21,8 @@ class ShopUnit(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            print("PASS 1")
             Validator.check_uuid(self.id)
-            print("PASS 2")
             Validator.check_date(self.date)
-            print("PASS 3")
 
             if not self.type or len(self.type) == 0:
                 raise ValidationError("Validation Failed")
@@ -34,6 +31,11 @@ class ShopUnit(models.Model):
                     unit = ShopUnit.objects.get(pk=self.id)
                     if unit.type != self.type:
                         raise ValidationError("Validation Failed")
+
+                    if self.parentId:
+                        parent = ShopUnit.objects.get(parentId=self.parentId)
+                        if parent.type != "CATEGORY":
+                            raise ValidationError("Validation Failed")
                 except ObjectDoesNotExist:
                     pass
 

@@ -25,16 +25,44 @@ def nodes(request, id):
         if response["code"] == 200:
             return HttpResponse(status=response["code"], content=json.dumps(response["message"]))
         elif response["code"] == 404:
-            return HttpResponse(status=response["code"], content=json.dumps(response, sort_keys=True, indent=1, cls=DjangoJSONEncoder))
+            return HttpResponse(status=response["code"],
+                                content=json.dumps(response, sort_keys=True, indent=1, cls=DjangoJSONEncoder))
 
 @csrf_exempt
 def sales(request):
     if request.method == "GET":
         response = ShopUnitController.on_sales(request.GET["date"])
-        return HttpResponse(status=response["code"], content=json.dumps(response))
+        if response["code"] == 200:
+            return HttpResponse(status=response["code"], content=json.dumps(response["message"]))
+        elif response["code"] == 400:
+            return HttpResponse(status=response["code"],
+                                content=json.dumps(response, sort_keys=True, indent=1, cls=DjangoJSONEncoder))
 
 @csrf_exempt
 def node_statistic(request, id):
     if request.method == "GET":
-        response = ShopUnitController.on_node_statistic(id, request.GET["dateStart"], request.GET["dateEnd"])
-        return HttpResponse(status=response["code"], content=json.dumps(response))
+        date_from = None
+        date_to = None
+        response = {}
+        try:
+            date_from = request.GET["dateStart"]
+        except Exception as e:
+            pass
+        try:
+            date_to = request.GET["dateEnd"]
+        except Exception as e:
+            pass
+        if date_from and date_to:
+            response = ShopUnitController.on_node_statistic(id, date_from, date_to)
+        elif date_from:
+            response = ShopUnitController.on_node_statistic(id, date_form=date_from)
+        elif date_to:
+            response = ShopUnitController.on_node_statistic(id, date_to=date_to)
+        else:
+            response = ShopUnitController.on_node_statistic(id)
+
+        if response["code"] == 200:
+            return HttpResponse(status=response["code"], content=json.dumps(response["message"]))
+        elif response["code"] == 400:
+            return HttpResponse(status=response["code"],
+                                content=json.dumps(response, sort_keys=True, indent=1, cls=DjangoJSONEncoder))

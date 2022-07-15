@@ -1,4 +1,6 @@
 import json
+from datetime import datetime, timedelta
+
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.models import model_to_dict
 
@@ -50,10 +52,10 @@ class ShopUnitController:
             query = ShopUnit.objects.get(pk=id)
             unit = model_to_dict(query)
             unit["date"] = str(unit["date"])
-            unit["children"] = ShopUnitController.get_childrens(query.id, query.type)
+            unit["children"] = ShopUnitController._get_childrens(query.id, query.type)
 
-            ShopUnitController.count_price(unit)
-            ShopUnitController.count_price(unit)  # Fast solution
+            ShopUnitController._count_price(unit)
+            ShopUnitController._count_price(unit)  # Fast solution
 
             return {"code": 200, "message": unit}
         except ObjectDoesNotExist as e:
@@ -62,7 +64,7 @@ class ShopUnitController:
             return {"code": 400, "message": "Validation Failed"}
 
     @staticmethod
-    def get_childrens(id, type):
+    def _get_childrens(id, type):
         childrens = []
         query = ShopUnit.objects.filter(parentId=id)
         if len(query) == 0:
@@ -73,27 +75,86 @@ class ShopUnitController:
         for q in query:
             children = model_to_dict(q)
             children["date"] = str(children["date"])
-            children["children"] = ShopUnitController.get_childrens(q.id, q.type)
+            children["children"] = ShopUnitController._get_childrens(q.id, q.type)
             childrens.append(children)
         return childrens
 
     @staticmethod
-    def count_price(unit):
+    def _count_price(unit):
         if not unit["children"] or unit["children"] is None:
             return
         unit["price"] = 0
         for c in unit["children"]:
             unit["price"] += c["price"] if isinstance(c["price"], int) else 0
-            ShopUnitController.count_price(c)
+            ShopUnitController._count_price(c)
         if unit["price"] == 0:
             unit["price"] = None
 
 
     @staticmethod
     def on_sales(date):
-        return {"code": 200, "message": date}
+        try:
+            Validator.check_date(date)
+            date_from = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%f%z') - timedelta(days=1)
+            date_from = date_from.isoformat()[:-6] + ".000Z"
+            date_to = date
+
+            query = ShopUnit.objects.filter(type="OFFER", date__gte=date_from, date__lte=date_to)
+            items = []
+            for q in query:
+                item = model_to_dict(q)
+                item["date"] = str(item["date"])
+                items.append(item)
+
+            return {"code": 200, "message": {"items": items}}
+        except ValidationError as e:
+            return {"code": 400, "message": "Validation Failed"}
 
     @staticmethod
     def on_node_statistic(id, date_form=None, date_to=None):
-        return {"code": 200, "message": {"id": id, "date_form": date_form, "date_to": date_to}}
+        try:
+            Validator.check_uuid(id)
+            if date_form:
+                Validator.check_date(date_form)
+            if date_to:
+                Validator.check_date(date_to)
+
+            try:
+                query = None
+
+                if date_form and date_to:
+                    query = ShopUnit.objects.get(pk=id, date__gte=date_form, date__lte=date_to)
+                elif date_form:
+                    query = ShopUnit.objects.get(pk=id, date__gte=date_form)
+                elif date_to:
+                    query = ShopUnit.objects.get(pk=id, date__lte=date_to)
+                else:
+                    query = ShopUnit.objects.get(pk=id)
+
+                unit = model_to_dict(query)
+                unit["date"] = str(unit["date"])
+                unit["children"] = ShopUnitController._get_childrens(query.id, query.type)
+
+                ShopUnitController._count_avg(unit)
+                ShopUnitController._count_avg(unit)  # Fast solution
+
+                return {"code": 200, "message": unit}
+            except ObjectDoesNotExist as e:
+                return {"code": 404, "message": "Item not found"}
+
+        except ValidationError as e:
+            return {"code": 400, "message": "Validation Failed"}
+
+    @staticmethod
+    def _count_avg(unit):
+        if not unit["children"] or unit["children"] is None:
+            return
+        unit["price"] = 0
+        for c in unit["children"]:
+            unit["price"] += c["price"] if c["price"] is not None else 0
+            ShopUnitController._count_avg(c)
+        unit["price"] = unit["price"] / len(unit["children"])
+        print("DIVIDED", unit["price"])
+        if unit["price"] == 0:
+            unit["price"] = None
 
