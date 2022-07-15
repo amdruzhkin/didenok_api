@@ -1,6 +1,7 @@
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.serializers.json import DjangoJSONEncoder
 
 from shop_unit.controller import ShopUnitController
 
@@ -21,7 +22,10 @@ def delete(request, id):
 def nodes(request, id):
     if request.method == "GET":
         response = ShopUnitController.on_nodes(id)
-        return HttpResponse(status=response["code"], content=json.dumps(response))
+        if response["code"] == 200:
+            return HttpResponse(status=response["code"], content=json.dumps(response["message"]))
+        elif response["code"] == 404:
+            return HttpResponse(status=response["code"], content=json.dumps(response, sort_keys=True, indent=1, cls=DjangoJSONEncoder))
 
 @csrf_exempt
 def sales(request):

@@ -17,51 +17,51 @@ payload = {
             "date": "2022-05-28T21:12:01.000Z",
             "type": "CATEGORY",
         },
-        {
-            "id": "449d7dea-9332-46fe-944c-1377c2f6d39d",
-            "name": "Category 2",
-            "date": "2022-05-28T21:12:01.000Z",
-            "type": "CATEGORY",
-        },{
-            "id": "bd122861-0d09-40ca-8241-0aa511057e26",
-            "parentId": "9ae1e0ca-fe1a-464b-9471-15e41a52847a",
-            "name": "Product 1",
-            "date": "2022-05-28T21:12:01.000Z",
-            "type": "OFFER",
-            "price": 200,
-        },{
-            "id": "9be66d5b-cabc-4dc7-a1d0-fd54875660e4",
-            "parentId": "449d7dea-9332-46fe-944c-1377c2f6d39d",
-            "name": "Product 2",
-            "date": "2022-05-28T21:12:01.000Z",
-            "type": "OFFER",
-            "price": 200,
-        },{
-            "id": "0cd4fa99-a05c-4728-982b-8c04c54f1ba0",
-            "parentId": "449d7dea-9332-46fe-944c-1377c2f6d39d",
-            "name": "Product 3",
-            "date": "2022-05-28T21:12:01.000Z",
-            "type": "OFFER",
-            "price": 200,
-        },{
-            "id": "5861fe25-c9e0-44b0-a9be-2b49a36ff026",
-            "parentId": "9ae1e0ca-fe1a-464b-9471-15e41a52847a",
-            "name": "Product 4",
-            "date": "2022-05-28T21:12:01.000Z",
-            "type": "OFFER",
-            "price": 200,
-        },
+        # {
+        #     "id": "449d7dea-9332-46fe-944c-1377c2f6d39d",
+        #     "name": "Category 2",
+        #     "date": "2022-05-28T21:12:01.000Z",
+        #     "type": "CATEGORY",
+        # },{
+        #     "id": "bd122861-0d09-40ca-8241-0aa511057e26",
+        #     "parentId": "9ae1e0ca-fe1a-464b-9471-15e41a52847a",
+        #     "name": "Product 1",
+        #     "date": "2022-05-28T21:12:01.000Z",
+        #     "type": "OFFER",
+        #     "price": 200,
+        # },{
+        #     "id": "9be66d5b-cabc-4dc7-a1d0-fd54875660e4",
+        #     "parentId": "449d7dea-9332-46fe-944c-1377c2f6d39d",
+        #     "name": "Product 2",
+        #     "date": "2022-05-28T21:12:01.000Z",
+        #     "type": "OFFER",
+        #     "price": 200,
+        # },{
+        #     "id": "0cd4fa99-a05c-4728-982b-8c04c54f1ba0",
+        #     "parentId": "449d7dea-9332-46fe-944c-1377c2f6d39d",
+        #     "name": "Product 3",
+        #     "date": "2022-05-28T21:12:01.000Z",
+        #     "type": "OFFER",
+        #     "price": 200,
+        # },{
+        #     "id": "5861fe25-c9e0-44b0-a9be-2b49a36ff026",
+        #     "parentId": "9ae1e0ca-fe1a-464b-9471-15e41a52847a",
+        #     "name": "Product 4",
+        #     "date": "2022-05-28T21:12:01.000Z",
+        #     "type": "OFFER",
+        #     "price": 200,
+        # },
     ]
 }
 
 # response = requests.post(host+"/imports", json=json.dumps(payload))
 # print(response.text)
 
-response = requests.delete(host+"/delete/9ae1e0ca-fe1a-464b-9471-15e41a52847a")
-print(response.text)
-
-# response = requests.get(host+"/nodes/9ae1e0ca-fe1a-464b-9471-15e41a52847a")
+# response = requests.delete(host+"/delete/9ae1e0ca-fe1a-464b-9471-15e41a52847a")
 # print(response.text)
+
+response = requests.get(host+"/nodes/9ae1e0ca-fe1a-464b-9471-15e41a52847a")
+print(response.text)
 
 # response = requests.get(host+"/sales?date=2022-05-28T21%3A12%3A01.000Z")
 # print(response.text)

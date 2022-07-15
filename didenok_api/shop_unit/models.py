@@ -1,9 +1,11 @@
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
+from django.forms.models import model_to_dict
+
 
 # Create your models here.
 
-from shop_unit.validator import Validator as Val, Validator
+from shop_unit.validator import Validator
 
 unit_types = (
     ("OFFER", "Товар"),
@@ -19,15 +21,21 @@ class ShopUnit(models.Model):
 
     def save(self, *args, **kwargs):
         try:
+            print("PASS 1")
             Validator.check_uuid(self.id)
+            print("PASS 2")
             Validator.check_date(self.date)
+            print("PASS 3")
 
             if not self.type or len(self.type) == 0:
                 raise ValidationError("Validation Failed")
             else:
-                unit = ShopUnit.objects.get(pk=self.id)
-                if unit.type != self.type:
-                    raise ValidationError("Validation Failed")
+                try:
+                    unit = ShopUnit.objects.get(pk=self.id)
+                    if unit.type != self.type:
+                        raise ValidationError("Validation Failed")
+                except ObjectDoesNotExist:
+                    pass
 
             if not self.name or len(self.name) == 0:
                 raise ValidationError("Validation Failed")
