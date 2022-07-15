@@ -51,6 +51,10 @@ class ShopUnitController:
             unit = model_to_dict(query)
             unit["date"] = str(unit["date"])
             unit["children"] = ShopUnitController.get_childrens(query.id, query.type)
+
+            ShopUnitController.count_price(unit)
+            ShopUnitController.count_price(unit)  # Fast solution
+
             return {"code": 200, "message": unit}
         except ObjectDoesNotExist as e:
             return {"code": 404, "message": "Item not found"}
@@ -73,8 +77,16 @@ class ShopUnitController:
             childrens.append(children)
         return childrens
 
-
-
+    @staticmethod
+    def count_price(unit):
+        if not unit["children"] or unit["children"] is None:
+            return
+        unit["price"] = 0
+        for c in unit["children"]:
+            unit["price"] += c["price"] if isinstance(c["price"], int) else 0
+            ShopUnitController.count_price(c)
+        if unit["price"] == 0:
+            unit["price"] = None
 
 
     @staticmethod
